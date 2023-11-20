@@ -1,0 +1,19 @@
+{
+  "file": "Item",
+  "delimiter": "|",
+  "format": "csv",
+  "validations": [
+    {
+      "fieldName": "SAP#",
+      "validations": ["notNull"]
+    },
+    {
+      "fieldName": "Material#",
+      "validations": ["notNull"]
+    },
+    {
+      "fieldName": "MinimumQty",
+      "validations": ["notZero"]
+    }
+  ]
+}
