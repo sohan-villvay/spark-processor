@@ -1,13 +1,33 @@
 package com.villvay.sparkprocessor.file.utils;
 
+import com.villvay.sparkprocessor.file.ProcessStatus;
+import com.villvay.sparkprocessor.util.PropertiesLoader;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Properties;
 
 public class FileUtils {
-    public static void moveFile(File file, String outputDirectory){
+
+    static Properties properties = PropertiesLoader.loadProperties();
+
+    public static void moveFile(File file, ProcessStatus status){
+
+        String outputDirectory = null;
+
+        switch(status){
+            case DONE:
+                outputDirectory = properties.getProperty("pim.types[0].source.location.done");
+                break;
+            case ERROR:
+                outputDirectory = properties.getProperty("pim.types[0].source.location.error");
+            default:
+                System.out.println("Invalid Processing Status");
+        }
+
         try {
             Path source = file.toPath();
             Path destination = new File(outputDirectory, file.getName()).toPath();
