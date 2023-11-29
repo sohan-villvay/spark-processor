@@ -20,10 +20,10 @@ public class FileUtils {
 
         switch(status){
             case DONE:
-                outputDirectory = properties.getProperty("pim.types[0].source.location.done");
+                outputDirectory = properties.getProperty("pim.source.location.done");
                 break;
             case ERROR:
-                outputDirectory = properties.getProperty("pim.types[0].source.location.error");
+                outputDirectory = properties.getProperty("pim.source.location.error");
             default:
                 System.out.println("Invalid Processing Status");
         }

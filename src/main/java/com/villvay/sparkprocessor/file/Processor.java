@@ -21,31 +21,13 @@ public class Processor {
                 .master("local[*]")
                 .getOrCreate();
 
-        loadFile(spark);
-    }
-
-    private void processData(File file, Dataset<Row> data){
-        data.show(20);
-        FileUtils.moveFile(file, ProcessStatus.DONE);
-    }
-
-    private void loadFile(SparkSession spark){
-        String inputDirectory = properties.getProperty("pim.types[0].source.location.pending");
-        String outputDirectory = properties.getProperty("pim.types[0].source.location.done");
+        ProcessorFactory processorFactory = new ProcessorFactory(properties, spark);
+        long delay = Long.parseLong(properties.getProperty("pim.source.delay"));
 
         while (true) {
-            File directory = new File(inputDirectory);
-            File[] files = directory.listFiles();
-
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isFile()) {
-                        readFile(spark, file);
-                    }
-                }
-            }
+            processPendingFiles(processorFactory);
             try {
-                TimeUnit.SECONDS.sleep(10);
+                TimeUnit.SECONDS.sleep(delay);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 spark.stop();
@@ -53,15 +35,19 @@ public class Processor {
         }
     }
 
-    private void readFile(SparkSession spark, File file){
-        String delimiter = properties.getProperty("pim.types[0].delimiter");
-        Dataset<Row> data = spark.read()
-                .option("header", true)
-                .schema(FileSchema.getItemFileSchema())
-                .option("delimiter", delimiter)
-                .csv(file.getPath());
+    private void processPendingFiles(ProcessorFactory fileProcessorFactory) {
+        String inputDirectory = properties.getProperty("pim.source.location.pending");
+        File directory = new File(inputDirectory);
+        File[] files = directory.listFiles();
 
-        processData(file, data);
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    FileProcessor fileProcessor = fileProcessorFactory.createFileProcessor(file);
+                    fileProcessor.processFile(file);
+                }
+            }
+        }
     }
 
 }
