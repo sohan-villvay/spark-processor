@@ -1,11 +1,11 @@
 package com.villvay.sparkprocessor.file;
 
 import com.villvay.sparkprocessor.file.utils.FileUtils;
+import com.villvay.sparkprocessor.publisher.ActiveMQPublisher;
 import com.villvay.sparkprocessor.schema.FileSchema;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-
 import java.io.File;
 import java.util.Properties;
 
@@ -30,12 +30,15 @@ public class MaterialMasterFileProcessor implements FileProcessor {
                 .option("delimiter", delimiter)
                 .csv(file.getPath());
 
-        sendDataToSink(data, sinkUrl);
+        sendDataToSink(data);
         FileUtils.moveFile(file, ProcessStatus.DONE);
     }
 
-    private void sendDataToSink(Dataset<Row> data, String sinkUrl) {
+    private void sendDataToSink(Dataset<Row> data) {
         data.show(20);
-        System.out.println("Send data to sink: " + sinkUrl);
+        System.out.println("Send data to sink");
+        Dataset<String> jsonStrings = data.toJSON();
+        ActiveMQPublisher.publish(jsonStrings);
     }
+
 }

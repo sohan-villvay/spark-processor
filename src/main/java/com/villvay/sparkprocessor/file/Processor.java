@@ -1,10 +1,6 @@
 package com.villvay.sparkprocessor.file;
 
-import com.villvay.sparkprocessor.file.utils.FileUtils;
-import com.villvay.sparkprocessor.schema.FileSchema;
 import com.villvay.sparkprocessor.util.PropertiesLoader;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
 import java.io.File;
